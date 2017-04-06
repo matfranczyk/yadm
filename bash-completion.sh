@@ -26,7 +26,7 @@ EOF
   }
   __yadm_global_switches() { # TODO: make it possible to inspect yadm for this
     cat <<-EOF
-      --yadm-dir
+      -Y --yadm-dir
       --yadm-repo
       --yadm-config
       --yadm-encrypt
@@ -39,6 +39,7 @@ EOF
 
     local current=${COMP_WORDS[COMP_CWORD]}
     local previous=${COMP_WORDS[COMP_CWORD-1]}
+    local complete_option=${COMP_WORDS[COMP_CWORD-2]}
 
     # echo
     # echo "COMP_WORDS:$COMP_WORDS<-"
@@ -48,6 +49,7 @@ EOF
     # echo "COMPREPLY:$COMPREPLY<-"
     # echo "current:$current<-"
     # echo "previous:$previous<-"
+    # echo "complete_option:$complete_option<-"
     # echo
 
     # local GIT_WORK_TREE="$(yadm gitconfig core.worktree)"
@@ -85,14 +87,18 @@ EOF
 		  ;;
     esac
 
-    _git $*
+    # this condition is so files are completed properly for --yadm-xxx options
+    if [[ ! "$previous" =~ ^- ]]; then
+      # TODO: somehow solve the problem with [--yadm-xxx option] being
+      #       incompatible with what git expects, namely [--arg=option]
+      _git
+    fi
     if [[ "$current" =~ ^- ]]; then
       local matching=$(compgen -W "$(__yadm_global_switches)" -- "$current")
       __gitcompappend "$matching"
     fi
 
-    # TODO: this needs to be savvy about option switches
-    if [ $COMP_CWORD == 1 ]; then
+    if [ $COMP_CWORD == 1 ] || [[ "$complete_option" =~ ^- ]] ; then
       local matching=$(compgen -W "$(__yadm_internal_commands)" -- "$current")
       __gitcompappend "$matching"
     fi
