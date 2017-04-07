@@ -38,8 +38,8 @@ EOF
   _yadm() {
 
     local current=${COMP_WORDS[COMP_CWORD]}
-    local previous=${COMP_WORDS[COMP_CWORD-1]}
-    local complete_option=${COMP_WORDS[COMP_CWORD-2]}
+    local penultimate=${COMP_WORDS[COMP_CWORD-1]}
+    local antepenultimate=${COMP_WORDS[COMP_CWORD-2]}
 
     # echo
     # echo "COMP_WORDS:$COMP_WORDS<-"
@@ -48,14 +48,14 @@ EOF
     # echo
     # echo "COMPREPLY:$COMPREPLY<-"
     # echo "current:$current<-"
-    # echo "previous:$previous<-"
-    # echo "complete_option:$complete_option<-"
+    # echo "penultimate:$penultimate<-"
+    # echo "antepenultimate:$antepenultimate<-"
     # echo
 
     # local GIT_WORK_TREE="$(yadm gitconfig core.worktree)"
     local GIT_DIR="$HOME/.yadm/repo.git" # TODO: make it possible to inspect yadm for this
 
-    case "$previous" in
+    case "$penultimate" in
       bootstrap)
         COMPREPLY=()
         return 0
@@ -88,7 +88,7 @@ EOF
     esac
 
     # this condition is so files are completed properly for --yadm-xxx options
-    if [[ ! "$previous" =~ ^- ]]; then
+    if [[ ! "$penultimate" =~ ^- ]]; then
       # TODO: somehow solve the problem with [--yadm-xxx option] being
       #       incompatible with what git expects, namely [--arg=option]
       _git
@@ -98,7 +98,7 @@ EOF
       __gitcompappend "$matching"
     fi
 
-    if [ $COMP_CWORD == 1 ] || [[ "$complete_option" =~ ^- ]] ; then
+    if [ $COMP_CWORD == 1 ] || [[ "$antepenultimate" =~ ^- ]] ; then
       local matching=$(compgen -W "$(__yadm_internal_commands)" -- "$current")
       __gitcompappend "$matching"
     fi
