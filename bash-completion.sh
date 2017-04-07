@@ -107,6 +107,11 @@ EOF
       __gitcompappend "$matching"
     fi
 
+    # remove duplicates found in COMPREPLY (a native bash way could be better)
+    if [ -n "$COMPREPLY" ]; then
+      COMPREPLY=($(echo "${COMPREPLY[@]}" | sort -u))
+    fi
+
   }
 
 	complete -o bashdefault -o default -o nospace -F _yadm yadm 2>/dev/null \
