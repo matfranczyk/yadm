@@ -66,9 +66,6 @@ EOF
         COMPREPLY=( $(compgen -W "$config_list -e" -- "$current") )
         return 0
 		  ;;
-      # TODO: clone is a bit tricky
-      # clone)
-		  # ;;
       decrypt)
         COMPREPLY=( $(compgen -W "-l" -- "$current") )
         return 0
@@ -83,6 +80,13 @@ EOF
       ;;
       list)
         COMPREPLY=( $(compgen -W "-a" -- "$current") )
+        return 0
+		  ;;
+    esac
+
+    case "$antepenultimate" in
+      clone)
+        COMPREPLY=( $(compgen -W "-f -w --bootstrap --no-bootstrap" -- "$current") )
         return 0
 		  ;;
     esac
