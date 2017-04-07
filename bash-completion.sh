@@ -52,8 +52,9 @@ EOF
     # echo "antepenultimate:$antepenultimate<-"
     # echo
 
-    # local GIT_WORK_TREE="$(yadm gitconfig core.worktree)"
-    local GIT_DIR="$HOME/.yadm/repo.git" # TODO: make it possible to inspect yadm for this
+    local GIT_DIR
+    # shellcheck disable=SC2034
+    GIT_DIR="$HOME/.yadm/repo.git" # TODO: make it possible to inspect yadm for this
 
     case "$penultimate" in
       bootstrap)
@@ -62,7 +63,8 @@ EOF
       ;;
       config)
         # TODO: add more direct way to query yadm for this
-        local config_list=$(yadm config | egrep '^  yadm|^  local')
+        local config_list
+        config_list=$(yadm config | grep -E '^  yadm|^  local')
         COMPREPLY=( $(compgen -W "$config_list -e" -- "$current") )
         return 0
 		  ;;
@@ -98,17 +100,19 @@ EOF
       _git
     fi
     if [[ "$current" =~ ^- ]]; then
-      local matching=$(compgen -W "$(__yadm_global_switches)" -- "$current")
+      local matching
+      matching=$(compgen -W "$(__yadm_global_switches)" -- "$current")
       __gitcompappend "$matching"
     fi
 
-    if [ $COMP_CWORD == 1 ] || [[ "$antepenultimate" =~ ^- ]] ; then
-      local matching=$(compgen -W "$(__yadm_internal_commands)" -- "$current")
+    if [ "$COMP_CWORD" == 1 ] || [[ "$antepenultimate" =~ ^- ]] ; then
+      local matching
+      matching=$(compgen -W "$(__yadm_internal_commands)" -- "$current")
       __gitcompappend "$matching"
     fi
 
     # remove duplicates found in COMPREPLY (a native bash way could be better)
-    if [ -n "$COMPREPLY" ]; then
+    if [ -n "${COMPREPLY[*]}" ]; then
       COMPREPLY=($(echo "${COMPREPLY[@]}" | sort -u))
     fi
 
