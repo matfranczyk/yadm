@@ -6,55 +6,15 @@ fi
 # only operate if git completion is present
 if declare -F _git > /dev/null; then
 
-  __yadm_internal_commands() { # TODO: make it possible to inspect yadm for this
-    cat <<-EOF
-      alt
-      bootstrap
-      clean
-      clone
-      config
-      decrypt
-      encrypt
-      enter
-      gitconfig
-      help
-      init
-      list
-      perms
-      version
-EOF
-  }
-  __yadm_global_switches() { # TODO: make it possible to inspect yadm for this
-    cat <<-EOF
-      -Y --yadm-dir
-      --yadm-repo
-      --yadm-config
-      --yadm-encrypt
-      --yadm-archive
-      --yadm-bootstrap
-EOF
-  }
-
   _yadm() {
 
     local current=${COMP_WORDS[COMP_CWORD]}
     local penultimate=${COMP_WORDS[COMP_CWORD-1]}
     local antepenultimate=${COMP_WORDS[COMP_CWORD-2]}
 
-    # echo
-    # echo "COMP_WORDS:$COMP_WORDS<-"
-    # echo "COMP_CWORD:$COMP_CWORD<-"
-    # echo " COMP_LINE:$COMP_LINE<-"
-    # echo
-    # echo "COMPREPLY:$COMPREPLY<-"
-    # echo "current:$current<-"
-    # echo "penultimate:$penultimate<-"
-    # echo "antepenultimate:$antepenultimate<-"
-    # echo
-
     local GIT_DIR
     # shellcheck disable=SC2034
-    GIT_DIR="$HOME/.yadm/repo.git" # TODO: make it possible to inspect yadm for this
+    GIT_DIR="$(yadm introspect repo 2>/dev/null)"
 
     case "$penultimate" in
       bootstrap)
@@ -62,10 +22,7 @@ EOF
         return 0
       ;;
       config)
-        # TODO: add more direct way to query yadm for this
-        local config_list
-        config_list=$(yadm config | grep -E '^  yadm|^  local')
-        COMPREPLY=( $(compgen -W "$config_list -e" -- "$current") )
+        COMPREPLY=( $(compgen -W "$(yadm introspect configs 2>/dev/null)") )
         return 0
 		  ;;
       decrypt)
@@ -74,6 +31,10 @@ EOF
 		  ;;
       init)
         COMPREPLY=( $(compgen -W "-f -w" -- "$current") )
+        return 0
+		  ;;
+      introspect)
+        COMPREPLY=( $(compgen -W "commands configs repo switches" -- "$current") )
         return 0
 		  ;;
       help)
@@ -101,13 +62,13 @@ EOF
     fi
     if [[ "$current" =~ ^- ]]; then
       local matching
-      matching=$(compgen -W "$(__yadm_global_switches)" -- "$current")
+      matching=$(compgen -W "$(yadm introspect switches 2>/dev/null)" -- "$current")
       __gitcompappend "$matching"
     fi
 
     if [ "$COMP_CWORD" == 1 ] || [[ "$antepenultimate" =~ ^- ]] ; then
       local matching
-      matching=$(compgen -W "$(__yadm_internal_commands)" -- "$current")
+      matching=$(compgen -W "$(yadm introspect commands 2>/dev/null)" -- "$current")
       __gitcompappend "$matching"
     fi
 
