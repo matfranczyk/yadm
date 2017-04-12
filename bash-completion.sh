@@ -79,7 +79,7 @@ if declare -F _git > /dev/null; then
 
   }
 
-	complete -o bashdefault -o default -o nospace -F _yadm yadm 2>/dev/null \
-		|| complete -o default -o nospace -F _yadm yadm
+	complete -o bashdefault -o default -F _yadm yadm 2>/dev/null \
+		|| complete -o default -F _yadm yadm
 
 fi
